@@ -1,0 +1,111 @@
+---
+title: "Student performance"
+author: "Olawal"
+date: "2023-06-01"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Table of contents   
+
+### 1. Introduction  
+### 2. Design  
+### 3. Implementation   
+### 4. User guide  
+### 5. Conclusion  
+### 6. Bibliography  
+### 7. Appendix     
+
+
+\newpage  
+
+#### Introduction  
+
+Motivation    
+
+Higher education is critical to an individual's future success. Predicting academic success becomes
+increasingly crucial as more kids enter colleges and universities.Alyahyan and Düştegör (2020). As a
+student, I have witnessed students struggle with low academic achievement owing to a variety of
+causes, and by employing data exploration techniques, I am able to uncover critical aspects that
+influence a student's success. In this study, I hope to analyse three of these publicly available datasets
+in order to better understand the various factors that influence college students' academic
+achievement. My study, I hope, will assist institutions in identifying students at risk of poor
+performance and providing them with the assistance they require to achieve academically.
+Furthermore, this initiative will assist education policymakers in developing effective interventions to
+increase overall student performance.   
+
+Questions we seek to address through this analysis are;       
+
+● What are the significant factors that affect the academic performance of students?       
+● Are there any significant differences in academic performance between students of different      
+ethnicities or races, and if so, what factors contribute to these differences?    
+● How do these factors impact the academic performance of students?     
+
+\newpage  
+
+#### Implementation    
+
+##### Tech stack used in developing the dashboard   
+1. R Shiny   
+ - Shiny is an R package that makes it easy to build interactive web apps straight from R. 
+ You can host standalone apps on a webpage or embed them in R Markdown documents or build dashboards.  
+ One of the advantages of using R Shiny is that its open source, as such we don't need licence to use it. 
+ 
+2. Cascading Styling Sheet    
+ - Cascading Style Sheets is a style sheet language used for describing the presentation of a document written in a markup language such as HTML. 
+ CSS is a cornerstone technology of the World Wide Web, alongside HTML and JavaScript.  
+
+##### Packages used in developing the dashboard:  
+* shiny   
+  - R package for creating web applications.   
+  For more, click [here](https://shiny.rstudio.com/tutorial/)    
+  
+* dplyr     
+  - dplyr is a grammar of data manipulation, providing a consistent set of verbs that help you solve the most common data manipulation challenges.  
+  For more, click [here](https://cran.r-project.org/web/packages/dplyr/vignettes/dplyr.html)    
+  
+* ggplot2     
+  - ggplot2 is a system for declaratively creating graphics, based on The Grammar of Graphics. You provide the data, tell ggplot2 how to map variables to aesthetics, what graphical primitives to use, and it takes care of the details.   
+  For more, click [here](https://ggplot2.tidyverse.org/)   
+   
+* plotly      
+  - Create interactive web graphics from 'ggplot2' graphs and/or a custom interface to the (MIT-licensed) JavaScript library 'plotly.js' inspired by the grammar of graphics.  
+  For more, click [here](https://plotly.com/r/getting-started/)   
+  
+* data.table       
+  - For data wrangling and manipulation.  
+  For more, click [here](https://cran.r-project.org/web/packages/data.table/vignettes/datatable-intro.html)    
+  
+  
+* flexdashboard    
+  - The goal of flexdashboard is to make it easy to create interactive dashboards for R. 
+  Used the gauge function from this library to create gauge plot.   
+
+* shinythemes    
+  - Used to improve the overall appearance of shiny dashboards.  
+
+\newpage 
+
+##### Challenges   
+R Shiny is not  a native web language and this paused a challenge in developing the user interface. To make the interface/theming appealing, 
+I used css to alter the user interface of the R Shiny dashboard.   
+
+
+#### User guide     
+
+The dashboard has two sections:       
+
+  * Header    
+  * Mainpanel   
+  
+  
+
+### Conclusion
+From the analysis of the various variables in the dataset, it is evident that there are factors that contribute to the performance of students.  
+There are significant differences in student performance based on the race/ethnicity, this might need further investigation as to why students from certain races performed better than those from other ethnic backgrounds.  
+The combination of the number of hours students spend studying and them going out with friends revealed some sweet 'spots' for optimal performance, generally, the lower the going out the better the performance, for the number of hours spent studying, the more the hours the better the performance. 
+

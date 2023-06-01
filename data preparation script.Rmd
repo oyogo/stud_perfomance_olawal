@@ -1,0 +1,293 @@
+---
+title: "data preparation script"
+author: "olawal"
+date: "2023-05-25"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Load libraries
+```{r}
+library(plotly)
+library(data.table)
+library(dplyr)
+library(ggplot2)
+```
+
+# Attributes for both student-mat.csv (Math course) and student-por.csv (Portuguese language course) datasets:
+1 school - student's school (binary: "GP" - Gabriel Pereira or "MS" - Mousinho da Silveira)
+2 sex - student's sex (binary: "F" - female or "M" - male)
+3 age - student's age (numeric: from 15 to 22)
+4 address - student's home address type (binary: "U" - urban or "R" - rural)
+5 famsize - family size (binary: "LE3" - less or equal to 3 or "GT3" - greater than 3)
+6 Pstatus - parent's cohabitation status (binary: "T" - living together or "A" - apart)
+7 Medu - mother's education (numeric: 0 - none,  1 - primary education (4th grade), 2 – 5th to 9th grade, 3 – secondary education or 4 – higher education)
+8 Fedu - father's education (numeric: 0 - none,  1 - primary education (4th grade), 2 – 5th to 9th grade, 3 – secondary education or 4 – higher education)
+9 Mjob - mother's job (nominal: "teacher", "health" care related, civil "services" (e.g. administrative or police), "at_home" or "other")
+10 Fjob - father's job (nominal: "teacher", "health" care related, civil "services" (e.g. administrative or police), "at_home" or "other")
+11 reason - reason to choose this school (nominal: close to "home", school "reputation", "course" preference or "other")
+12 guardian - student's guardian (nominal: "mother", "father" or "other")
+13 traveltime - home to school travel time (numeric: 1 - <15 min., 2 - 15 to 30 min., 3 - 30 min. to 1 hour, or 4 - >1 hour)
+14 studytime - weekly study time (numeric: 1 - <2 hours, 2 - 2 to 5 hours, 3 - 5 to 10 hours, or 4 - >10 hours)
+15 failures - number of past class failures (numeric: n if 1<=n<3, else 4)
+16 schoolsup - extra educational support (binary: yes or no)
+17 famsup - family educational support (binary: yes or no)
+18 paid - extra paid classes within the course subject (Math or Portuguese) (binary: yes or no)
+19 activities - extra-curricular activities (binary: yes or no)
+20 nursery - attended nursery school (binary: yes or no)
+21 higher - wants to take higher education (binary: yes or no)
+22 internet - Internet access at home (binary: yes or no)
+23 romantic - with a romantic relationship (binary: yes or no)
+24 famrel - quality of family relationships (numeric: from 1 - very bad to 5 - excellent)
+25 freetime - free time after school (numeric: from 1 - very low to 5 - very high)
+26 goout - going out with friends (numeric: from 1 - very low to 5 - very high)
+27 Dalc - workday alcohol consumption (numeric: from 1 - very low to 5 - very high)
+28 Walc - weekend alcohol consumption (numeric: from 1 - very low to 5 - very high)
+29 health - current health status (numeric: from 1 - very bad to 5 - very good)
+30 absences - number of school absences (numeric: from 0 to 93)
+
+# these grades are related with the course subject, Math or Portuguese:
+31 G1 - first period grade (numeric: from 0 to 20)
+31 G2 - second period grade (numeric: from 0 to 20)
+32 G3 - final grade (numeric: from 0 to 20, output target)
+
+Additional note: there are several (382) students that belong to both datasets . 
+These students can be identified by searching for identical attributes
+that characterize each student, as shown in the annexed R file.
+
+Import data
+```{r}
+stud_perf <- fread("data/student_performance.csv")
+stud_perf_subjects <- read.csv("data/StudentsPerformance.csv")
+```
+
+Replacement
+```{r}
+
+stud_perf <- stud_perf %>%
+  mutate(goout=case_when(
+    goout == 1 ~ "Very low",
+    goout == 2 ~ "Low",
+    goout == 3 ~ "Medium",
+    goout == 4 ~ "High",
+    goout == 5 ~ "Very High"
+  ),
+  studytime = case_when(
+    studytime == 1 ~ "<2hours",
+    studytime == 2 ~ "2 - 5 hours",
+    studytime == 3 ~ "5 - 10 hours",
+    studytime == 4 ~ ">10 hours"
+  ))
+
+fact_cols <- c("goout","studytime")
+stud_perf$goout <- factor(stud_perf$goout, levels = c("Very low","Low","Medium","High","Very High"), ordered = TRUE)
+stud_perf$studytime <- factor(stud_perf$studytime, levels = c("<2hours","2 - 5 hours","5 - 10 hours",">10 hours"), ordered = TRUE) 
+
+```
+
+
+Going out and study time relationship
+```{r}
+stud_perf[,.(mean_score=mean(G3)),by=c("goout","studytime")] %>%
+  ggplot(aes(x=goout,y=studytime,fill=mean_score)) +
+  geom_tile() +
+  geom_text(aes(label=round(mean_score,1))) + # this is the function that helps us to label the cells
+  scale_fill_gradient(low = "white",high = "blue") + # you can use your own colors using this function
+  labs(title="How studytime relates to Going out",y="Study time",x="Going out") # Customizing your axis labels and title
+```
+Race/Ethnicity, how does it affect performance
+```{r}
+stud_perf_subjects$score <-rowMeans(stud_perf_subjects[c('math.score', 'reading.score','writing.score')], na.rm = TRUE)
+
+setDT(stud_perf_subjects)[,.(mean_score=mean(score)),by=c("race.ethnicity")] %>%
+plot_ly() %>%
+        add_trace(x = ~reorder(race.ethnicity, mean_score), 
+                  y = ~mean_score,
+                  size = ~mean_score,
+                  color = ~race.ethnicity,
+                  alpha = 1.5,
+                  #sizes = c(200,4000),
+                  text = ~paste("Ethnic group: ",race.ethnicity, "\n","Mean score: ",round(mean_score,2)),
+                  type = "scatter",
+                  mode = "markers",
+                  marker = list(symbol = 'circle', sizemode = 'diameter',
+                                line = list(width = 2, color = '#FFFFFF'), opacity=0.4)) %>%
+        # add_text(x = ~reorder(race.ethnicity, -mean_score), 
+        #                 y = ~race.ethnicity, text = ~mean_score,
+        #                 showarrow = FALSE,
+        #                 color = I("black")) %>%
+        layout(
+          showlegend = FALSE,
+          title="Mean score with respect to ethnic groups",
+          xaxis = list(
+            title = "Race/Ethnic group"
+          ),
+          yaxis = list(
+            title = "Mean score"
+          )
+        ) %>%
+        config(displayModeBar = FALSE, displaylogo = FALSE, 
+              scrollZoom = FALSE, showAxisDragHandles = TRUE, 
+              showSendToCloud = FALSE)
+```
+
+## Performance in regards to gender 
+
+```{r}
+# generate student id's 
+stud_perf_subjects <- stud_perf_subjects[, student_id := .I]
+
+stud_perf_subjects_melt <- melt(stud_perf_subjects,variable.name = "subjects",measure.vars = c("math.score","reading.score","writing.score"),value.name = "score")
+
+stud_perf_subjects_melt[,.(mean_score=mean(score.1)),by=c("gender","subjects")] %>% 
+  plot_ly(
+                  x = ~gender,
+                  y = ~mean_score,
+                  color = ~subjects,
+                  text = ~paste0("Gender: ", gender, "\n", "Subject: ", subjects,"\n","Mean score: ",round(mean_score,2))) %>%
+               add_bars(showlegend=TRUE, hoverinfo='text' ) %>%
+  layout(title="Mean gender performance",
+         yaxis = list(title = "Mean Score"),
+         xaxis = list(title = "Gender"))
+
+
+
+```
+
+Scatter plot
+```{r}
+stud_perf_subjects %>%
+  ggplot(aes(x=math.score,y=reading.score,color=gender)) +
+  geom_jitter() +
+  labs(title="Reading and Math scores scatter plot",y="Reading score",x="Math score")
+```
+
+Gender mean score
+```{r}
+
+gauge.df <- stud_perf_subjects %>% group_by(gender) %>% summarise(mean.gender.score = round(mean(score),2))
+
+ plot_ly(
+    domain = list(x = c(0, 1), y = c(0, 1)),
+    value = 69.57,#gauge.df[gauge.df$gender=="female"],
+    title = list(text = "Female mean score"),
+    type = "indicator",
+    mode = "gauge+number") %>%
+  layout(margin = list(l=20,r=30))
+
+
+ plot_ly(
+    domain = list(x = c(0, 1), y = c(0, 1)),
+    value = 65.84,
+    title = list(text = "Male mean score"),
+    type = "indicator",
+    mode = "gauge+number") %>%
+  layout(margin = list(l=20,r=30))
+```
+
+
+Line graph and barplot comparison  
+Filter for course
+```{r}
+stud_perf_subjects_melt <- melt(stud_perf_subjects_melt, variable.name="groupings",
+                                measure.vars = c("race.ethnicity","parental.level.of.education","test.preparation.course","lunch"),
+                                value.name = "group.values")
+
+stud_perf_subjects_melt <- stud_perf_subjects_melt[,mean.score:=mean(score),by=.(group.values)]
+```
+
+Visualize 
+
+```{r}
+
+ stud_perf.groupings <- stud_perf_subjects_melt %>% 
+  group_by(groupings,group.values) %>%
+  mutate(mean.score=mean(score)) %>% ungroup()
+
+scaleFactor <- (stud_perf.groupings$mean.score/stud_perf.groupings$mean.score)*stud_perf.groupings$nstuds
+
+  ggplot(data = stud_perf.groupings,aes(x = group.values, y = mean.score, fill=mean.score)) +
+  geom_col() +
+     theme_bw() +
+    theme(axis.text.x = element_text(vjust = 0.9, hjust = 0.9, angle = 45)) +
+   # geom_line(data = stud_perf_subjects_melt,aes(x=group.values, y=mean.score/10),stat="identity",color="red",size=2, group=1)+
+   # scale_y_continuous(sec.axis=sec_axis(~.*10,name="Number of Students")) +
+  facet_wrap(~groupings, scales = "free") 
+
+  
+stud_perf.groupings %>% 
+  filter(groupings == "race.ethnicity") %>% 
+  ggplot() + 
+  geom_col(aes(x = group.values, y = 3*mean.score)) +
+  geom_line(aes(x = group.values, y = nstuds), size = 1.5, color="red", group = 1) + 
+  scale_y_continuous(sec.axis = sec_axis(~., name = "Number of students")) #+
+  #facet_wrap(~groupings, scales = "free")
+
+```
+
+```{r}  
+
+stud.number <- stud_perf_subjects %>%
+  group_by(race.ethnicity)  %>%
+  mutate(number.studs = n())
+
+stud.summary <- stud.number %>% 
+  group_by(race.ethnicity) %>% 
+  summarise(score = mean(math.score),number.studs=number.studs)
+
+stud.summary <- stud.summary %>% unique()
+
+ggplot(stud.summary) + 
+  geom_col(aes(x = race.ethnicity, y = score, fill=score)) +
+  geom_line(aes(x = race.ethnicity, y = 1*number.studs), size = 1.5, color="green", group = 1, stat="identity") + 
+  scale_y_continuous(sec.axis = sec_axis(~./1, name = "Number of students")) +
+  labs(title="Average score per ethnic group and number of students",x="Race/Ethnicity",y="Average score")
+
+```
+
+```{r}
+stud_perf_subjects %>% group_by(gender) %>% summarise(count=n())
+```
+
+
+```{r}
+
+library(plotrix)
+
+example(twoord.plot)  
+
+groupvalues <- stud_perf.groupings$group.values
+meanscore <- stud_perf.groupings$mean.score
+studs <- stud_perf.groupings$nstuds
+
+
+twoord.plot(
+            lx=as.character(groupvalues),
+            ly=meanscore,
+            rx=as.character(groupvalues),
+            ry=studs,
+            xlab="Group values",
+  lylim=range(meanscore),rylim=range(studs),xlim = c("group A","group B","group C","group D","group E"),
+  type=c("bar","l"),ylab="Mean score",#ylab.at=5,
+  rylab="Number of students",#rylab.at=65,
+  main="Bars on left axis, lines on right axis",
+  lytickpos=50:70,rytickpos=seq(30000,1000000,by=50000),
+  lcol=3,rcol=4,do.first="plot_bg()")
+
+
+ going_up<-seq(3,7,by=0.5)+rnorm(9)
+ going_down<-rev(60:74)+rnorm(15)
+ 
+ twoord.plot(2:10,going_up,1:15,going_down,xlab="Sequence",
+  lylim=range(going_up)+c(-1,10),rylim=range(going_down)+c(-10,2),
+  type=c("bar","l"),ylab="Ascending values",ylab.at=5,
+  rylab="Descending values",rylab.at=65,
+  main="Bars on left axis, lines on right axis",
+  lytickpos=3:7,rytickpos=seq(55,75,by=5),
+  lcol=3,rcol=4,do.first="plot_bg()")
+ 
+```
+
