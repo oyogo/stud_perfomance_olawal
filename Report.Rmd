@@ -1,8 +1,10 @@
 ---
-title: "Student performance"
+title: "Student performance analysis"
 author: "Olawal"
 date: "2023-06-01"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -99,13 +101,94 @@ I used css to alter the user interface of the R Shiny dashboard.
 
 The dashboard has two sections:       
 
-  * Header    
-  * Mainpanel   
+  * Header      
+  * sidebarpanel    
+  * Mainpanel     
   
-  
+##### Header  
+This section of the dashboard has the title of the application which basically is meant to give an idea of what dashboard is all about.  
+
+![](www/header.png){width=500px height=50px} 
+
+
+#### Sidebar panel  
+The sidebar contains a brief about the dashboard and the analysis it shows.  
+
+![](www/sidebar.png)
+
+##### Main panel 
+This is where we have the various graphs that give insights into the data.  
+
+![](www/mainpanel.png){width=500px height=200px}
+
+\newpage 
+
+##### Gauge plots
+This kind of graphs are ideal in cases where you have some sort of target, like in this case the target score is 100. So the gauge is at the mean score and it shows what's left against the target. Perfect fit to show the average performance of boys and girls adrift the target score.  
+
+![](www/gauge.png){width=500px height=200px}
+
+\newpage
+##### Bubble plot   
+This kind of plot is a good alternative to bar graphs. It fits well in cases where you want to visualize categorical data with respect to quantities. The size of the bubble corresponds to the numeric value for a given item. In this case we see the average performance per ethnic group. 
+The plot brings out the comparisons well, note that the graph is interactive, the user can hover on the graph to see average score and the respective ethnic group.  
+
+![](www/bubble.png){width=500px height=200px}
+
+\newpage 
+
+##### Combined bar graphs  
+Ggplot2 R graphing library has this amazing feature where you can have multiple bar charts faceted on a group variable. This feature was used to plot the average score for multiple variable; parents education levels, lunch, test preparation and ethnic group. This graph is a good way to combine multiple graphs into one instead of plotting them separately.   
+Additionally, we have a dropdown menu that the use can use to select the view per selected subject.  
+Also, the graph has a legend for guiding the user on the color used and how it relates to the various score values.    
+
+
+![](www/barcombined.png){width=500px height=200px}
+
+\newpage 
+##### Scatter plot  
+This is the go to graph whenever you want to see relationship between two variables. In this case we used the scatter plot to show the relationship between students performance in two subjects (math and reading), further, we added a color aspect to the points to show the gender comparisons. 
+The relationship came out well, quite interesting to see how the graph shows the differences in performance by gender for the two subjects; boys performing well in math whereas the girls doing well in reading.   
+
+![](www/scatter.png){width=500px height=200px}
+
+\newpage 
+
+##### Grouped bar chart 
+The grouped bar chart is a good way to show comparison for the items of a variable and how they compare in terms of quantities. 
+This graph is best for comparing quantities of categorical variable items. For this case we use it show the average performance of boys and girls per subject. 
+Quite interesting to see how the graph show the gender differences in performance across all subjects. Girls do well in reading and writing whereas boys do well in math.   
+
+![](www/bar.png){width=500px height=200px}
+
+\newpage 
+##### Combined bar and line graph   
+This is an amazing graph, being able to have two graphs on the same plot with different scales. This helps to see the comparisons of variables together as see how they relate if there be any kind of relationship. For this case we have the line graph showing the number of students on top of the bar graph that shows the student performance per ethnic group. This graph has a dropdown menu that is used to select subjects and have the graph show graph output for the selected subject.  
+
+![](www/barlinegraph.png){width=500px height=200px}
+
+##### Heatmap  
+This is also a good alternative to scatter plot when you want to see relationship between two variables. The data is presented in a two dimensional panel whereby the color of the cell values shows the magnitude in the values for the two variables in comparison.  In this case we want to see if there is any relationship between going out with friends and number of hours spent studying in terms of performance.  
+There is a legend that shows the color intensity in relation to the score values.   
+
+![](www/heatmap.png){width=500px height=200px}
 
 ### Conclusion
 From the analysis of the various variables in the dataset, it is evident that there are factors that contribute to the performance of students.  
 There are significant differences in student performance based on the race/ethnicity, this might need further investigation as to why students from certain races performed better than those from other ethnic backgrounds.  
 The combination of the number of hours students spend studying and them going out with friends revealed some sweet 'spots' for optimal performance, generally, the lower the going out the better the performance, for the number of hours spent studying, the more the hours the better the performance. 
+
+#### References 
+
+    
+1. Alyahyan, E. D. (2020). Predicting academic success in higher education: Literature
+review and best practices. International Journal of Educational Technology in Higher Education, 17(1),
+ https://doi.org/10.1186/s41239-020-0177-7
+2. Cortez, P. (2008). Student Performance Data Set. UCI Machine Learning Repository: Student
+Performance Data Set. Retrieved April 23, 2023, from
+https://archive.ics.uci.edu/ml/datasets/student+performance  
+
+3. Seshapanpu, J. (2018). Students performance in exams. Kaggle. Retrieved April 23, 2023, from
+https://www.kaggle.com/datasets/spscientist/students-performance-in-exams    
+
 

@@ -100,10 +100,10 @@ server <- function(input,output){
              showSendToCloud = FALSE)
   })
   
-  output$studytime_heatmap <- renderPlot({
+  output$studytime_heatmap <- renderPlotly({
     
-    stud_perf[,.(mean_score=mean(G3)),by=c("goout","studytime")] %>%
-      ggplot(aes(x=goout,y=studytime,fill=mean_score)) +
+   fig <-  stud_perf[,.(mean_score=mean(G3)),by=c("goout","studytime")] %>%
+      ggplot(aes(x=goout,y=studytime,fill=mean_score, text = paste("Go out: ",goout,"\n","Study time: ",studytime,"\n","Mean score: ",mean_score))) +
       geom_tile() +
       geom_text(aes(label=round(mean_score,1))) + # this is the function that helps us to label the cells
       scale_fill_gradient(low = "white",high = "blue") + # you can use your own colors using this function
@@ -119,12 +119,15 @@ server <- function(input,output){
         legend.box.background = element_rect(fill = "#ABC8D9"),
         legend.key = element_rect(fill = "#ABC8D9")
       )
+   
+   figh <- ggplotly(fig,tooltip = "text")
+   figh
   })
   
-  output$scatter_plot <- renderPlot({
+  output$scatter_plot <- renderPlotly({
     
-    stud_perf_subjects %>%
-      ggplot(aes(x=math.score,y=reading.score,color=gender)) +
+   fig <- stud_perf_subjects %>%
+      ggplot(aes(x=math.score,y=reading.score,color=gender,text=paste("Reading score: ",reading.score,"\n","Math score: ",math.score,"\n", "Gender: ",gender))) +
       geom_jitter() +
       labs(title="Reading and Math scores scatter plot",y="Reading score",x="Math score") +
       theme(
@@ -138,6 +141,9 @@ server <- function(input,output){
       legend.box.background = element_rect(fill = "#ABC8D9"),
       legend.key = element_rect(fill = "#ABC8D9")
     )
+   
+   figs <- ggplotly(fig,tooltip = c("text"))
+   
   })
   
   stud_perf_subjects_melt <- data.table::melt(stud_perf_subjects,variable.name = "subjects",measure.vars = c("math.score","reading.score","writing.score"),value.name = "score")
@@ -174,7 +180,7 @@ server <- function(input,output){
     
    #stud_perf_subjects_melt.grp <- stud_perf_subjects_melt.grp %>% unique()
     
-    stud_perf.groupings %>% 
+   stud_perf.groupings %>% 
       filter(subjects==input$subjects) %>% 
       ggplot(aes(x = group.values, y = mean.score, fill=mean.score)) +
       geom_col() +
@@ -190,16 +196,15 @@ server <- function(input,output){
             legend.box.background = element_rect(fill = "#ABC8D9"),
             legend.key = element_rect(fill = "#ABC8D9")) +
       facet_wrap(~groupings, scales = "free") 
+   
      
   }) 
   
-  output$combined_plot <- renderPlot({
+  output$combined_plot <- renderPlotly({
     
     stud.number <- stud_perf_subjects %>%
       group_by(race.ethnicity)  %>%
       mutate(number.studs = n())
-    
-      input$subject2
       
     stud.summary <- stud.number %>% 
       group_by(race.ethnicity) %>% 
@@ -207,7 +212,7 @@ server <- function(input,output){
     
     stud.summary <- stud.summary %>% unique()
     
-    ggplot(stud.summary) + 
+   fig <- ggplot(stud.summary) + 
       geom_col(aes(x = race.ethnicity, y = score, fill=score)) +
       geom_line(aes(x = race.ethnicity, y = 1*number.studs), size = 1.5, color="green", group = 1, stat="identity") + 
       scale_y_continuous(sec.axis = sec_axis(~./1, name = "Number of students")) +
@@ -223,6 +228,9 @@ server <- function(input,output){
             legend.background = element_rect(fill = "#ABC8D9"),
             legend.box.background = element_rect(fill = "#ABC8D9"),
             legend.key = element_rect(fill = "#ABC8D9"))
+   
+   figbl <- ggplotly(fig)
+   figbl
     
   })
   
